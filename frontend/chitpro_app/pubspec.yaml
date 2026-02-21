@@ -1,0 +1,38 @@
+name: chitpro_app
+description: "Chit Master app"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  flutter_secure_storage: ^9.0.0
+  jwt_decode: ^0.3.1
+  flutter_riverpod: ^2.5.1
+  intl: ^0.20.2
+  share_plus: ^12.0.1
+  cupertino_icons: ^1.0.8
+  pdf: ^3.11.3
+  path_provider: ^2.1.5
+  confetti: ^0.8.0
+  audioplayers: ^6.5.1
+  url_launcher: ^6.3.2
+  razorpay_flutter: ^1.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Registering the sounds folder
+  assets:
+    - assets/sounds/tick.mp3
+    - assets/sounds/win.mp3
