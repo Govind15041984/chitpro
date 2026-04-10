@@ -29,8 +29,8 @@ def get_dashboard(
 
     # 1. Admin info
     name_in_db = current_user.get("name")
-    admin_name = name_in_db if name_in_db and str(name_in_db).strip() else current_user.get("mobile_number", "Admin")
-    avatar_letter = admin_name[0].upper()
+    admin_name = name_in_db if name_in_db and str(name_in_db).strip() else "Admin"
+    avatar_letter = admin_name[0].upper() if admin_name else "A"
 
     # 2. Groups Fetching
     groups = db.query(ChitGroup).filter(

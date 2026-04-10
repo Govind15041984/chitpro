@@ -332,7 +332,51 @@ def get_person_ledger_all_months(
     ]
 
 
+@router.post("/collect-batch")
+def collect_batch_payment(payload: dict, db: Session = Depends(get_db)):
+    chit_group_id = UUID(payload["chit_group_id"])
+    person_keys = payload["person_keys"]
+    month_no = int(payload["month_no"])
 
+    # 1. First, get the IDs of the members based on the mobile numbers (person_keys)
+    member_ids = (
+        db.query(ChitMember.id)
+        .filter(ChitMember.mobile_number.in_(person_keys))
+        .all()
+    )
+    # Flatten the list of tuples [(id1,), (id2,)] into [id1, id2]
+    id_list = [m[0] for m in member_ids]
+
+    if not id_list:
+        return {"status": "SUCCESS", "message": "No members found"}
+
+    # 2. Perform the update on MemberLedger using the ID list
+    # This avoids the JOIN error
+    db.query(MemberLedger).filter(
+        MemberLedger.chit_group_id == chit_group_id,
+        MemberLedger.member_id.in_(id_list),
+        MemberLedger.month_no == month_no,
+        MemberLedger.payment_status != "PAID"
+    ).update({
+        "payment_status": "PAID",
+        "paid_at": datetime.utcnow()
+    }, synchronize_session=False)
+
+    # 3. Update the Auction total collection
+    total_paid = db.query(func.sum(MemberLedger.net_payable)).filter(
+        MemberLedger.chit_group_id == chit_group_id,
+        MemberLedger.month_no == month_no,
+        MemberLedger.payment_status == "PAID"
+    ).scalar() or 0
+
+    db.query(AuctionRound).filter(
+        AuctionRound.chit_group_id == chit_group_id,
+        AuctionRound.month_no == month_no,
+        AuctionRound.round_no == 1
+    ).update({"total_collection": total_paid}, synchronize_session=False)
+
+    db.commit()
+    return {"status": "SUCCESS"}
 
 
 

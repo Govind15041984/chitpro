@@ -52,6 +52,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return {
             "id": user.id,
             "role": role,
+            "name": user.name,
             "mobile_number": user.mobile_number
         }
     finally:
